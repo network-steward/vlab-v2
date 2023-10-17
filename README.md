@@ -1,2 +1,2 @@
 # vlab-v2
-OOP to stand up KVM and Container environemnt
+OOP to stand up KVM and Container environment
