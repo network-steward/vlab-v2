@@ -2,7 +2,7 @@ from cProfile import label
 from jinja2 import Environment, FileSystemLoader, Template, DebugUndefined
 import yaml
 import argparse
-import virtuallab
+import lab_builder
 from pydantic import BaseModel
 
 
@@ -36,10 +36,10 @@ if __name__ == '__main__':
             kvm_hosts = yaml.safe_load(file)
 
     if args.hosts[0] == 'all':
-# for debug if object insantiation fails [ (KVMS.append(virtuallab.KVM(**host_inv)), print(host_inv['hostname'])) for host_inv in kvm_hosts ['kvm_nodes'] ]
-        [ KVMS.append(virtuallab.KVM(**host_inv)) for host_inv in kvm_hosts ['kvm_nodes'] ]        
+# for debug if object insantiation fails [ (KVMS.append(lab_builder.KVM(**host_inv)), print(host_inv['hostname'])) for host_inv in kvm_hosts ['kvm_nodes'] ]
+        [ KVMS.append(lab_builder.KVM(**host_inv)) for host_inv in kvm_hosts ['kvm_nodes'] ]        
     else:
-        [ KVMS.append(virtuallab.KVM(**host_inv)) for node_name in args.hosts for host_inv in kvm_hosts['kvm_nodes'] if host_inv['hostname'] == node_name ]
+        [ KVMS.append(lab_builder.KVM(**host_inv)) for node_name in args.hosts for host_inv in kvm_hosts['kvm_nodes'] if host_inv['hostname'] == node_name ]
 
     
 

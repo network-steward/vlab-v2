@@ -1,7 +1,7 @@
 from jinja2 import Environment, FileSystemLoader, Template, DebugUndefined
 import yaml
 import argparse
-import virtuallab
+import lab_builder
 import settings
 
 
