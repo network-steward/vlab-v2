@@ -1,0 +1,91 @@
+<domain type='kvm'>
+  <name>{{hostname}}</name>
+  <memory unit='KiB'>5242880</memory>
+  <currentMemory unit='KiB'>5242880</currentMemory>
+  <vcpu placement='static'>4</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <sysinfo type='smbios'>
+    <system>
+      <entry name='product'>VM-VEX</entry>
+    </system>
+  </sysinfo>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-jammy'>hvm</type>
+    <boot dev='hd'/>
+    <smbios mode='sysinfo'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu mode='custom' match='exact' check='full'>
+    <model fallback='forbid'>IvyBridge</model>
+    <feature policy='require' name='ibpb'/>
+    <feature policy='require' name='md-clear'/>
+    <feature policy='require' name='spec-ctrl'/>
+    <feature policy='require' name='ssbd'/>
+    <feature policy='force' name='vmx'/>
+    <feature policy='require' name='hypervisor'/>
+    <feature policy='require' name='arat'/>
+    <feature policy='require' name='xsaveopt'/>
+  </cpu>
+  <clock offset='utc'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+<on_poweroff>destroy</on_poweroff>
+<on_reboot>restart</on_reboot>
+<on_crash>destroy</on_crash>
+<pm>
+  <suspend-to-mem enabled='no'/>
+  <suspend-to-disk enabled='no'/>
+</pm>
+<devices>
+  <emulator>/usr/bin/qemu-system-x86_64</emulator>
+  <disk type='file' device='disk'>
+    <driver name='qemu' type='qcow2' discard='unmap'/>
+    <source file='{{kvm_image_path}}{{image_name}}' index='1'/>
+    <backingStore/>
+    <target dev='hda' bus='ide'/>
+    <alias name='ide0-0-0'/>
+    <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+  </disk>
+    <console type='pty' tty='/dev/pts/7'>
+      <source path='/dev/pts/7'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+    <input type='mouse' bus='ps2'>
+      <alias name='input0'/>
+    </input>
+    <input type='keyboard' bus='ps2'>
+      <alias name='input1'/>
+    </input>
+    <serial type='pty'>
+      <source path='/dev/pts/7'/>
+      <target type='isa-serial' port='0'>
+        <model name='isa-serial'/>
+      </target>
+      <alias name='serial0'/>
+    </serial>
+    <interface type='bridge'>
+      <source bridge='rmgmt'/>
+      <target dev='{{hostname}}-mgmt'/>
+      <model type="virtio" />
+      <driver name="qemu" />
+      <mac address='{{management_mac}}'/>
+    </interface>
+ {% for i in interfaces %}   
+    <interface type='bridge'>
+      <source bridge='{{i.bridge}}'/>
+      <virtualport type='openvswitch'/>
+      <target dev='{{i.interface}}'/>
+      <model type='virtio'/>
+    </interface>
+{% endfor %}
+  </devices>
+</domain>
+

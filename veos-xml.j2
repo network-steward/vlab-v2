@@ -1,0 +1,52 @@
+<domain type='kvm'>
+  <name>{{hostname}}</name>
+ <memory unit='GB'>2</memory>
+  <currentMemory unit='GB'>2</currentMemory>
+  <vcpu placement='static'>1</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <os>
+    <type arch="x86_64" machine="pc">hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='writeback'/>
+      <source file='{{kvm_image_path}}{{image_name}}'/>
+      <backingStore/>
+      <target dev='hda' bus='ide'/>
+      <alias name='ide0-0-0'/>
+      <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+    </disk>
+    <serial type='pty'>
+      <source path='/dev/pts/2'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <console type='pty' tty='/dev/pts/2'>
+      <source path='/dev/pts/2'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+    <interface type='bridge'>
+      <source bridge='rmgmt'/>
+      <target dev='{{hostname}}-mgmt'/>
+      <model type='e1000'/>
+      <mac address='{{management_mac}}'/>
+    </interface>
+{% for i in interfaces %}
+    <interface type='bridge'>
+      <source bridge='{{i.bridge}}'/>
+      <virtualport type='openvswitch'/>
+      <target dev='{{hostname}}-{{i.interface}}'/>
+      <model type='e1000'/>
+    </interface>
+{% endfor %}
+  </devices>
+</domain>
+
